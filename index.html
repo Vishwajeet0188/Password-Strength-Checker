@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Password Strength Checker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      background: linear-gradient(-45deg, #ff6ec4, #7873f5, #6a11cb, #2575fc);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 480px;
+      display: none;
+    }
+
+    .container.active {
+      display: block;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    .instructions {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+      background: #f9f9f9;
+      padding: 10px 15px;
+      border-left: 4px solid #4facfe;
+      border-radius: 10px;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    input[type="password"],
+    textarea {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .strength-bar {
+      height: 12px;
+      background-color: #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background-color: red;
+      transition: width 0.4s ease, background-color 0.4s ease;
+    }
+
+    .result {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .tips {
+      font-size: 14px;
+      color: #555;
+      margin-top: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      border: none;
+      background-color: #4facfe;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    .submit-btn:hover {
+      background-color: #387ffb;
+    }
+
+    .thank-you {
+      margin-top: 1rem;
+      text-align: center;
+      color: green;
+      display: none;
+      font-weight: 600;
+    }
+
+    .back-btn {
+      margin-top: 1rem;
+      background-color: #555;
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Password Checker Section -->
+  <div class="container active" id="checkerSection">
+    <h2>🔐 Password Strength Checker</h2>
+    <div class="instructions">
+      ✅ To create a strong password, try to include:<br>
+      • At least 8 characters<br>
+      • One uppercase letter (A-Z)<br>
+      • One lowercase letter (a-z)<br>
+      • One number (0-9)<br>
+      • One special character (!@#$%^&*, etc.)
+    </div>
+
+    <div class="input-group">
+      <input type="password" id="password" placeholder="Enter your password" />
+      <button class="toggle" onclick="togglePassword()">👁️</button>
+    </div>
+
+    <div class="strength-bar">
+      <div class="bar-fill" id="barFill"></div>
+    </div>
+
+    <div class="result" id="result"></div>
+    <div class="tips" id="tips"></div>
+
+    <button class="submit-btn" onclick="checkStrength()">Check Password</button>
+  </div>
+
+  <!-- Feedback Section -->
+  <div class="container" id="feedbackSection">
+    <h2>💬 Suggest a Feature or Give Feedback</h2>
+    <textarea id="feedbackInput" placeholder="Tell us what features you'd like to see..."></textarea>
+    <button class="submit-btn" onclick="submitFeedback()">Submit Feedback</button>
+    <button class="submit-btn back-btn" onclick="goBack()">🔁 Back to Home</button>
+    <div class="thank-you" id="thankYouMsg">✅ Thank you for your feedback!</div>
+  </div>
+
+  <script>
+    function checkStrength() {
+      const password = document.getElementById("password").value;
+      const result = document.getElementById("result");
+      const barFill = document.getElementById("barFill");
+      const tips = document.getElementById("tips");
+
+      let score = 0;
+      let suggestions = [];
+
+      if (password.length >= 8) score++;
+      else suggestions.push("➕ Use at least 8 characters");
+
+      if (/[A-Z]/.test(password)) score++;
+      else suggestions.push("➕ Add an uppercase letter");
+
+      if (/[a-z]/.test(password)) score++;
+      else suggestions.push("➕ Add a lowercase letter");
+
+      if (/[0-9]/.test(password)) score++;
+      else suggestions.push("➕ Include a number");
+
+      if (/[!@#$%^&*(),.?\":{}|<>]/.test(password)) score++;
+      else suggestions.push("➕ Use a special character");
+
+      let strengthText = "";
+      if (password.length === 0) {
+        result.innerText = "⚠️ Please enter a password.";
+        barFill.style.width = "0%";
+        barFill.style.backgroundColor = "red";
+        tips.innerHTML = "";
+        return;
+      }
+
+      if (score === 5) {
+        strengthText = "✅ Strong password!";
+        barFill.style.width = "100%";
+        barFill.style.backgroundColor = "green";
+        tips.innerHTML = "";
+      } else if (score >= 3) {
+        strengthText = "⚠️ Medium strength";
+        barFill.style.width = "60%";
+        barFill.style.backgroundColor = "orange";
+        tips.innerHTML = suggestions.join("<br>");
+      } else {
+        strengthText = "❌ Weak password!";
+        barFill.style.width = "30%";
+        barFill.style.backgroundColor = "red";
+        tips.innerHTML = suggestions.join("<br>");
+      }
+
+      result.innerText = strengthText;
+
+      if (score >= 3) {
+        // Show feedback page
+        setTimeout(() => {
+          document.getElementById("checkerSection").classList.remove("active");
+          document.getElementById("feedbackSection").classList.add("active");
+        }, 1500); // Delay so user sees the result
+      }
+    }
+
+    function togglePassword() {
+      const input = document.getElementById("password");
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    function submitFeedback() {
+      const feedback = document.getElementById("feedbackInput").value.trim();
+      const thankYouMsg = document.getElementById("thankYouMsg");
+
+      if (feedback !== "") {
+        console.log("User feedback:", feedback);
+        document.getElementById("feedbackInput").value = "";
+        thankYouMsg.style.display = "block";
+
+        setTimeout(() => {
+          thankYouMsg.style.display = "none";
+        }, 3000);
+      }
+    }
+
+    function goBack() {
+      document.getElementById("feedbackSection").classList.remove("active");
+      document.getElementById("checkerSection").classList.add("active");
+
+      // Reset inputs
+      document.getElementById("password").value = "";
+      document.getElementById("result").innerText = "";
+      document.getElementById("tips").innerHTML = "";
+      document.getElementById("barFill").style.width = "0%";
+    }
+  </script>
+
+</body>
+</html>
