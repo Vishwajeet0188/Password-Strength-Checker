@@ -1,3 +1,6 @@
+
+LIVE DEMO : https://password-strength-checker-snowy.vercel.app/
+
 # Password Strength Checker
 
 ## Description
